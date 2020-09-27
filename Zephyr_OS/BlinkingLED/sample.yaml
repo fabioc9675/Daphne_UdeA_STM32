@@ -1,0 +1,8 @@
+sample:
+	name: Blinky sample
+tests:
+	sample.basic.BlinkingLED:
+		tags: LED GPIO
+		filter: dt_compat_enabled_with_alias("gpio-leds", "led0")
+		depends_on: gpio
+		harness: led
