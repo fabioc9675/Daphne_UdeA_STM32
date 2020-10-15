@@ -1,0 +1,21 @@
+# STM32F767ZI Nucleo board configuration
+
+# Copyright (c) 2019 Roland Ma
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_NUCLEO_F767ZI_BY_FABIAN_V2
+
+config BOARD
+	default "nucleo_fab_v2"
+
+if NETWORKING
+
+config NET_L2_ETHERNET
+	default y
+
+config ETH_STM32_HAL
+	default y
+
+endif # NETWORKING
+
+endif # BOARD_NUCLEO_F767ZI
