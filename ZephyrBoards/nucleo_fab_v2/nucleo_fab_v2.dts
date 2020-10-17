@@ -59,12 +59,15 @@
 		};
 	};
 	
-	adc1 {
-		compatible = "adc-controller";
+
+	/*adc1 {
+		
+		#compatible = "adc-controller";
 		user_adc: adc_1_fabian {
 			io-channels = <&adc1 1>;
+			#label = "User ADC1_ Fabian";
 		};		
-	};
+	};*/
 
 	aliases {
 		led0fabian = &green_led;
@@ -148,8 +151,9 @@
 	status = "okay";
 	
 	compatible = "st,stm32-adc";
-	label = "ADC_1";
-	#io-channel = <0>;
+	// label = "ADC_1";
+	label = "User ADC1_ Fabian";
+	#io-channel-cells = <1>;
 	
 };
 
