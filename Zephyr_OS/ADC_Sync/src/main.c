@@ -292,7 +292,7 @@ void taskAdc1(void) {
 	adccfg.gain = ADC_GAIN_1;
 	adccfg.reference=ADC_REF_INTERNAL;
 	adccfg.acquisition_time=ADC_ACQ_TIME_DEFAULT;//ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS,40);
-	adccfg.channel_id=0;
+	adccfg.channel_id=3;
 	adccfg.differential=0;
 
 	adc0_sq_opt.interval_us=0;
