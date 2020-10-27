@@ -36,6 +36,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+volatile STR_FLAGS _Events; // flags to handle different events
 
 /* USER CODE END PTD */
 

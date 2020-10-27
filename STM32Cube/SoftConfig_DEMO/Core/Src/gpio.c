@@ -20,6 +20,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "gpio.h"
 /* USER CODE BEGIN 0 */
+// declaration of external variables
+extern volatile STR_FLAGS _Events; // flags to handle different events
 
 /* USER CODE END 0 */
 
@@ -82,9 +84,20 @@ void MX_GPIO_Init(void) {
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(USB_OverCurrent_GPIO_Port, &GPIO_InitStruct);
 
+	/* EXTI interrupt init*/
+	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 }
 
 /* USER CODE BEGIN 2 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN) {
+	if (GPIO_PIN == USER_Btn_Pin) {
+		fl_ext_it_btn = TRUE; // external hardware interrupt
+		printf("button pressed\n");
+
+	}
+}
 
 /* USER CODE END 2 */
 

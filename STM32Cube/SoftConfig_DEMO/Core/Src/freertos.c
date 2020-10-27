@@ -34,7 +34,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+// declaration of external variables
+extern volatile STR_FLAGS _Events; // flags to handle different events
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -52,7 +53,7 @@
 // Task handle variable
 xTaskHandle taskLed2Handle;   // variable to handle the task Led 2
 xTaskHandle taskLed3Handle;
-xTaskHandle taskBtn1Handle;
+xTaskHandle taskISRAttnHandle;
 
 // Semaphore handle variable
 SemaphoreHandle_t semaphButton1;
@@ -64,7 +65,7 @@ osThreadId defaultTaskHandle;
 /* USER CODE BEGIN FunctionPrototypes */
 void taskLed2(void *arg);  // prototype of task Led 2.
 void taskLed3(void *arg);
-//void taskBtn1(void *arg);
+void taskISRAttn(void *arg);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -125,7 +126,7 @@ void MX_FREERTOS_Init(void) {
 	/* add threads, ... */
 	xTaskCreate(taskLed2, "Task_LED2", 512, NULL, 1, &taskLed2Handle); // task to blink LED 2
 	xTaskCreate(taskLed3, "Task_LED3", 512, NULL, 1, &taskLed3Handle); // task to blink LED 2
-	//xTaskCreate(taskBtn1, "Task_BTN1", 512, NULL, 1, &taskBtn1Handle); // task to blink LED 2
+	xTaskCreate(taskISRAttn, "Task_ISR_Attn", 512, NULL, 1, &taskISRAttnHandle); // task to handle interruption attention
 	/* USER CODE END RTOS_THREADS */
 
 }
@@ -162,7 +163,7 @@ void taskLed2(void *arg) {
 	uint8_t led2State = 0;
 
 	/* Infinite loop */
-	while (1) {
+	while (TRUE) {
 		// read the state of LED 2 pin.
 		led2State = !HAL_GPIO_ReadPin(LD2_GPIO_Port, LD2_Pin);
 		// blink the LED 2 every 1 sec.
@@ -181,16 +182,38 @@ void taskLed2(void *arg) {
 void taskLed3(void *arg) {
 
 	/* Infinite loop */
-	while (1) {
+	while (TRUE) {
 
-		// turn on the LED 3 for 1 sec when Button 1 was pressed.
-		HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, HIGH);
-		vTaskDelay(2000 / portTICK_PERIOD_MS);
-		HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, LOW);
+		if (xSemaphoreTake(semaphButton1, portMAX_DELAY) == pdTRUE) {
+			// turn on the LED 3 for 1 sec when Button 1 was pressed.
+			HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, HIGH);
+			vTaskDelay(2000 / portTICK_PERIOD_MS);
+			HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, LOW);
 
-		printf("Light turned off\n");
+			printf("Light turned off\n");
+		}
+
 	}
 	vTaskDelete(taskLed3Handle);
+}
+
+/**
+ * @brief  Function implementing the interruption handle.-
+ * @param  argument: Not used
+ * @retval None
+ */
+void taskISRAttn(void *arg) {
+
+	/* Infinite loop */
+	while (TRUE) {
+		if (fl_ext_it_btn) {
+			fl_ext_it_btn = FALSE; // interruption attended
+			xSemaphoreGive(semaphButton1);
+			printf("Semaphore delivered\n");
+			vTaskDelay(100 / portTICK_PERIOD_MS);
+		}
+	}
+	vTaskDelete(taskISRAttnHandle);
 }
 
 /* USER CODE END Application */

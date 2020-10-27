@@ -40,6 +40,48 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+/** ****************************************************************************
+ ** **************** FLAGS *****************************************************
+ ** ****************************************************************************/
+// Bits to use some flags
+typedef union {
+	unsigned int flag;
+
+	struct {
+		unsigned char flag00 :1; // counter to 1
+		unsigned char flag01 :1; // counter to 1
+		unsigned char flag02 :1; // counter to 1
+		unsigned char flag03 :1; // counter to 1
+		unsigned char flag04 :1; // counter to 1
+		unsigned char flag05 :1; // counter to 1
+		unsigned char flag06 :1; // counter to 1
+		unsigned char flag07 :1; // counter to 1
+		unsigned char flag08 :1; // counter to 1
+		unsigned char flag09 :1; // counter to 1
+		unsigned char flag10 :1; // counter to 1
+		unsigned char flag11 :1; // counter to 1
+		unsigned char flag12 :1; // counter to 1
+		unsigned char flag13 :1; // counter to 1
+		unsigned char flag14 :1; // counter to 1
+		unsigned char flag15 :1; // counter to 1
+		unsigned char flag16 :1; // counter to 1
+		unsigned char flag17 :1; // counter to 1
+		unsigned char flag18 :1; // counter to 1
+		unsigned char flag19 :1; // counter to 1
+		unsigned char flag20 :1; // counter to 1
+		unsigned char flag21 :1; // counter to 1
+		unsigned char flag22 :1; // counter to 1
+		unsigned char flag23 :1; // counter to 1
+		unsigned char flag24 :1; // counter to 1
+		unsigned char flag25 :1; // counter to 1
+		unsigned char flag26 :1; // counter to 1
+		unsigned char flag27 :1; // counter to 1
+		unsigned char flag28 :1; // counter to 1
+		unsigned char flag29 :1; // counter to 1
+		unsigned char flag30 :1; // counter to 1
+		unsigned char flag31 :1; // counter to 1
+	} Bits;
+} STR_FLAGS;
 
 /* USER CODE END ET */
 
@@ -63,6 +105,7 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define USER_Btn_Pin GPIO_PIN_13
 #define USER_Btn_GPIO_Port GPIOC
+#define USER_Btn_EXTI_IRQn EXTI15_10_IRQn
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOH
 #define RMII_MDC_Pin GPIO_PIN_1
@@ -118,6 +161,46 @@ void Error_Handler(void);
 #define LOW    0
 #define TRUE   1
 #define FALSE  0
+
+/** *******************************************************************************
+ *  Flags define
+ *  @brief   : use the definition of falgs in main.c (volatile STR_FLAGS _Events;)
+ *               and use in the other files as external variable
+ ** *******************************************************************************/
+extern volatile STR_FLAGS _Events;
+#define fl_ext_it_btn             _Events.Bits.flag00 //ok  // Flag to handle external interrupt in user button
+//#define fl_01                   _Events.Bits.flag01 //ok
+//#define fl_02                   _Events.Bits.flag02 //ok
+//#define fl_03                   _Events.Bits.flag03 //ok
+//#define fl_04                   _Events.Bits.flag04 //ok
+//#define fl_05                   _Events.Bits.flag05 //ok
+//#define fl_06                   _Events.Bits.flag06 //ok
+//#define fl_07                   _Events.Bits.flag07 //ok
+//#define fl_08                   _Events.Bits.flag08 //ok
+//#define fl_09                   _Events.Bits.flag09 //ok
+//#define fl_10                   _Events.Bits.flag10 //ok
+//#define fl_11                   _Events.Bits.flag11 //ok
+//#define fl_12                   _Events.Bits.flag12 //ok
+//#define fl_13                   _Events.Bits.flag13 //ok
+//#define fl_14                   _Events.Bits.flag14 //ok
+//#define fl_15                   _Events.Bits.flag15 //ok
+//#define fl_16                   _Events.Bits.flag16 //ok
+//#define fl_17                   _Events.Bits.flag17 //ok
+//#define fl_18                   _Events.Bits.flag18 //ok
+//#define fl_19                   _Events.Bits.flag19 //ok
+//#define fl_20                   _Events.Bits.flag20 //ok
+//#define fl_21                   _Events.Bits.flag21 //ok
+//#define fl_22                   _Events.Bits.flag22 //ok
+//#define fl_23                   _Events.Bits.flag23 //ok
+//#define fl_24                   _Events.Bits.flag24 //ok
+//#define fl_25                   _Events.Bits.flag25 //ok
+//#define fl_26                   _Events.Bits.flag26 //ok
+//#define fl_27                   _Events.Bits.flag27 //ok
+//#define fl_28                   _Events.Bits.flag28 //ok
+//#define fl_29                   _Events.Bits.flag29 //ok
+//#define fl_30                   _Events.Bits.flag30 //ok
+//#define fl_31                   _Events.Bits.flag31 //ok
+
 
 /* USER CODE END Private defines */
 
