@@ -3,9 +3,6 @@
  * File Name          : gpio.c
  * Description        : This file provides code for the configuration
  *                      of all used GPIO pins.
- * @Author            : Fabian Castano
- * @Institution       : University of Antioquia
- * @Project           : DUNE-Daphne
  ******************************************************************************
  * @attention
  *

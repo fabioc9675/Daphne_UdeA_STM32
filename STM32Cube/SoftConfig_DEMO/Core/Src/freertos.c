@@ -49,7 +49,13 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
+// Task handle variable
 xTaskHandle taskLed2Handle;   // variable to handle the task Led 2
+xTaskHandle taskLed3Handle;
+xTaskHandle taskBtn1Handle;
+
+// Semaphore handle variable
+SemaphoreHandle_t semaphButton1;
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
@@ -57,6 +63,8 @@ osThreadId defaultTaskHandle;
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 void taskLed2(void *arg);  // prototype of task Led 2.
+void taskLed3(void *arg);
+//void taskBtn1(void *arg);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -97,6 +105,7 @@ void MX_FREERTOS_Init(void) {
 
 	/* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
+	semaphButton1 = xSemaphoreCreateBinary(); // creation of binary semaphore to button 1
 	/* USER CODE END RTOS_SEMAPHORES */
 
 	/* USER CODE BEGIN RTOS_TIMERS */
@@ -115,6 +124,8 @@ void MX_FREERTOS_Init(void) {
 	/* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
 	xTaskCreate(taskLed2, "Task_LED2", 512, NULL, 1, &taskLed2Handle); // task to blink LED 2
+	xTaskCreate(taskLed3, "Task_LED3", 512, NULL, 1, &taskLed3Handle); // task to blink LED 2
+	//xTaskCreate(taskBtn1, "Task_BTN1", 512, NULL, 1, &taskBtn1Handle); // task to blink LED 2
 	/* USER CODE END RTOS_THREADS */
 
 }
@@ -128,6 +139,8 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void const *argument) {
 	/* USER CODE BEGIN StartDefaultTask */
+
+	printf("Software DEMO_FC, DUNE-Daphne STM32Cube with FreeRTOS\n");
 	/* Infinite loop */
 	for (;;) {
 		HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
@@ -148,6 +161,7 @@ void taskLed2(void *arg) {
 
 	uint8_t led2State = 0;
 
+	/* Infinite loop */
 	while (1) {
 		// read the state of LED 2 pin.
 		led2State = !HAL_GPIO_ReadPin(LD2_GPIO_Port, LD2_Pin);
@@ -157,6 +171,26 @@ void taskLed2(void *arg) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 	vTaskDelete(taskLed2Handle);
+}
+
+/**
+ * @brief  Function implementing the defaultTask thread to blink a LED 3.-
+ * @param  argument: Not used
+ * @retval None
+ */
+void taskLed3(void *arg) {
+
+	/* Infinite loop */
+	while (1) {
+
+		// turn on the LED 3 for 1 sec when Button 1 was pressed.
+		HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, HIGH);
+		vTaskDelay(2000 / portTICK_PERIOD_MS);
+		HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, LOW);
+
+		printf("Light turned off\n");
+	}
+	vTaskDelete(taskLed3Handle);
 }
 
 /* USER CODE END Application */
