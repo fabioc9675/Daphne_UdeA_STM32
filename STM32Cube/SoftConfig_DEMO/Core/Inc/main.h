@@ -114,6 +114,10 @@ void Error_Handler(void);
 #define LD2_Pin GPIO_PIN_7
 #define LD2_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
+#define HIGH   1
+#define LOW    0
+#define TRUE   1
+#define FALSE  0
 
 /* USER CODE END Private defines */
 
