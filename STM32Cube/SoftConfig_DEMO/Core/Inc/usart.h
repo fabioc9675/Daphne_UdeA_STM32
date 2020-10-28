@@ -33,12 +33,28 @@
 extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
+#define USE_FIFO_USART3        TRUE
+
+// defines for special characters
+#define LF                              0x0A        //Character new line
+#define CR                              0x0D        //Character carriage return
+#define CHAR_NULL                       0x00        //Character null
+
+#define _CTR_CHAR_USART3                LF          // Control character to interpret the data
 
 /* USER CODE END Private defines */
 
 void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+void USART3_UART_SendChar(uint8_t *val);
+void USART3_UART_SendLoad(char *load, int len);
+
+// functions to handle the serial interruption
+void USART3_UART_TX_ISR(void);
+void USART3_UART_RX_ISR(void);
+
+void USART3_Interrupt_Init(void);
 
 /* USER CODE END Prototypes */
 

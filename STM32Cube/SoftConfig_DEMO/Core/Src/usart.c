@@ -21,6 +21,18 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+// includes
+#if USE_FIFO_USART3
+#include "fifo_rx3.h"
+#include "fifo_tx3.h"
+#endif
+
+// extern variables
+extern volatile STR_FLAGS _Events;
+
+// private data buffer
+uint8_t U3RXBUFF[10];  // buffer to receive data from USART3
+uint8_t U3TXBUFF[10];  // buffer to transmit data to USART3
 
 /* USER CODE END 0 */
 
@@ -68,6 +80,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef *uartHandle) {
 		GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
 		HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+		/* USART3 interrupt Init */
+		HAL_NVIC_SetPriority(USART3_IRQn, 5, 0);
+		HAL_NVIC_EnableIRQ(USART3_IRQn);
 		/* USER CODE BEGIN USART3_MspInit 1 */
 
 		/* USER CODE END USART3_MspInit 1 */
@@ -89,6 +104,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *uartHandle) {
 		 */
 		HAL_GPIO_DeInit(GPIOD, STLK_RX_Pin | STLK_TX_Pin);
 
+		/* USART3 interrupt Deinit */
+		HAL_NVIC_DisableIRQ(USART3_IRQn);
 		/* USER CODE BEGIN USART3_MspDeInit 1 */
 
 		/* USER CODE END USART3_MspDeInit 1 */
@@ -96,6 +113,105 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *uartHandle) {
 }
 
 /* USER CODE BEGIN 1 */
+/*******************************************************************************
+ * Name: SCI6_SendChar                                                         *
+ * Desc: Send Data SCI6 Module                                                 *
+ * Parameter: val                                                              *
+ * Return: None                                                                *
+ *******************************************************************************/
+void USART3_UART_SendChar(uint8_t *val) {
+	HAL_UART_Transmit_IT(&huart3, val, 1); // activate the hardware transmision by interruption
+}
+
+/*******************************************************************************
+ * Name: SCI1_SendLoad                                                         *
+ * Desc: Send Load SCI1 Module                                                 *
+ * Parameter: *load, len                                                       *
+ * Return: None                                                                *
+ *******************************************************************************/
+void USART3_UART_SendLoad(char *load, int len) {
+	HAL_UART_Transmit(&huart3, load, len, HAL_MAX_DELAY); // activate the hardware transmision by interruption
+}
+
+/*******************************************************************************
+ * Name: _U3InterruptHandler                                                   *
+ * Desc: Interrupt SCI3 Module                                                 *
+ * Parameter: None                                                             *
+ * Return: None                                                                *
+ *******************************************************************************/
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	// call the function to process an interruption
+	USART3_UART_RX_ISR();
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+	// call the function to process an interruption
+	USART3_UART_TX_ISR();
+}
+
+/*******************************************************************************
+ * Name: USART3_UART_RX_ISR                                                    *
+ * Desc: Interrupt SCI3 Module                                                 *
+ * Parameter: None                                                             *
+ * Return: None                                                                *
+ *******************************************************************************/
+void USART3_UART_RX_ISR(void) {
+	// Programming space
+
+#if USE_FIFO_USART3
+	volatile uint8_t dataUART3;
+
+	dataUART3 = U3RXBUFF[0];
+	if (dataUART3 == CHAR_NULL) {
+		__NOP();
+	} else if (dataUART3 == _CTR_CHAR_USART3) { // control character arrived to USART3
+		// verify if it is necessary to add this data to the queue
+		// Fifo_Rx3_Put(dataUART3);
+		fl_usart3_rx = TRUE; // there is an serial interrupt to be attended
+	} else { // if ((datoSCI >= 0x65 && datoSCI <= 0x69) || (datoSCI >= 0x30 && datoSCI <= 0x39)) { // valid characters to the payload
+		if (!Fifo_Rx3_Put(dataUART3)) {
+			Fifo_Rx3_Init();
+		}
+	}
+	HAL_UART_Receive_IT(&huart3, U3RXBUFF, 1);
+
+#else
+	// programming without fifos
+
+#endif
+}
+
+/*******************************************************************************
+ * Name: USART3_UART_TX_ISR                                                    *
+ * Desc: Interrupt SCI3 Module                                                 *
+ * Parameter: None                                                             *
+ * Return: None                                                                *
+ *******************************************************************************/
+void USART3_UART_TX_ISR(void) {
+	// Programming space
+
+#if USE_FIFO_USART3
+	// volatile uint8_t dataUART3;
+
+	// try to obtain data from FIFO to write in UART3_TX
+	if (Fifo_Tx3_Get(U3TXBUFF) == 1) {
+		// send the data through USART3_TX
+		HAL_UART_Transmit_IT(&huart3, U3TXBUFF, 1);
+	} else {
+		__NOP();
+	}
+#endif
+}
+
+/*******************************************************************************
+ * Name: USART3_UART_TX_ISR                                                    *
+ * Desc: Interrupt SCI3 Module                                                 *
+ * Parameter: None                                                             *
+ * Return: None                                                                *
+ *******************************************************************************/
+void USART3_Interrupt_Init(void) {
+	HAL_UART_Receive_IT(&huart3, U3RXBUFF, 1);
+}
 
 /* USER CODE END 1 */
 

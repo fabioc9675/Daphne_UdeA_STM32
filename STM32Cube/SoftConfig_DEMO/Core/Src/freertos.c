@@ -40,6 +40,10 @@ extern volatile STR_FLAGS _Events; // flags to handle different events
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+uint8_t datoPruebaTx[7] = "Fabian\n";
+uint8_t *pDataTx;
+uint8_t datoPruebaRx[7];
+uint8_t *pDataRx;
 
 /* USER CODE END PD */
 
@@ -115,6 +119,8 @@ void MX_FREERTOS_Init(void) {
 
 	/* USER CODE BEGIN RTOS_QUEUES */
 	/* add queues, ... */
+	Fifo_Rx3_Init();
+	Fifo_Tx3_Init();
 	/* USER CODE END RTOS_QUEUES */
 
 	/* Create the thread(s) */
@@ -169,6 +175,15 @@ void taskLed2(void *arg) {
 		// blink the LED 2 every 1 sec.
 		HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, led2State);
 
+		pDataTx = datoPruebaTx;
+		pDataRx = datoPruebaRx;
+		while ((*pDataTx != 0) && (Fifo_Tx3_Put(*pDataTx))) {
+			pDataTx++;
+		}
+		if (Fifo_Tx3_Get(pDataRx) == 1) {
+			USART3_UART_SendChar(pDataRx);
+		}
+
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 	vTaskDelete(taskLed2Handle);
@@ -204,6 +219,11 @@ void taskLed3(void *arg) {
  */
 void taskISRAttn(void *arg) {
 
+	uint8_t dataRec[8];
+	uint8_t *pDaRec;
+
+	USART3_Interrupt_Init();
+
 	/* Infinite loop */
 	while (TRUE) {
 		if (fl_ext_it_btn) {
@@ -211,6 +231,27 @@ void taskISRAttn(void *arg) {
 			xSemaphoreGive(semaphButton1);
 			printf("Semaphore delivered\n");
 			vTaskDelay(100 / portTICK_PERIOD_MS);
+		}
+		if (fl_usart3_rx) {
+			fl_usart3_rx = FALSE; // interrupt attended
+
+			pDaRec = dataRec;
+			while (Fifo_Rx3_Get(pDaRec)) {
+				*pDaRec += 1;
+				pDaRec++;
+			}
+
+			pDaRec = dataRec;
+
+			while ((*pDaRec != 0) && (Fifo_Tx3_Put(*pDaRec))) {
+				*pDaRec = 0;
+				pDaRec++;
+			}
+			pDaRec = dataRec;
+			if (Fifo_Tx3_Get(pDaRec) == 1) {
+				USART3_UART_SendChar(pDaRec);
+			}
+
 		}
 	}
 	vTaskDelete(taskISRAttnHandle);

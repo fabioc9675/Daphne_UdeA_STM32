@@ -35,6 +35,9 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usart.h"
+#include "fifo_rx3.h"
+#include "fifo_tx3.h"
 
 /* USER CODE END Includes */
 
@@ -169,8 +172,8 @@ void Error_Handler(void);
  ** *******************************************************************************/
 extern volatile STR_FLAGS _Events;
 #define fl_ext_it_btn             _Events.Bits.flag00 //ok  // Flag to handle external interrupt in user button
-//#define fl_01                   _Events.Bits.flag01 //ok
-//#define fl_02                   _Events.Bits.flag02 //ok
+#define fl_usart3_rx              _Events.Bits.flag01 //ok  // Flag to handle usart3 rx interrupt
+#define fl_usart3_tx              _Events.Bits.flag02 //ok  // Flag to handle usart3 tx interrupt
 //#define fl_03                   _Events.Bits.flag03 //ok
 //#define fl_04                   _Events.Bits.flag04 //ok
 //#define fl_05                   _Events.Bits.flag05 //ok
@@ -200,7 +203,6 @@ extern volatile STR_FLAGS _Events;
 //#define fl_29                   _Events.Bits.flag29 //ok
 //#define fl_30                   _Events.Bits.flag30 //ok
 //#define fl_31                   _Events.Bits.flag31 //ok
-
 
 /* USER CODE END Private defines */
 
