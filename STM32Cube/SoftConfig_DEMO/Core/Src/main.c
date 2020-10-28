@@ -25,6 +25,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "eth.h"
+#include "tim.h"
 #include "usart.h"
 #include "usb_otg.h"
 #include "gpio.h"
@@ -52,6 +53,9 @@ volatile STR_FLAGS _Events; // flags to handle different events
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+// counter for time interruption
+uint16_t count_us = 0;
+uint16_t count_ms = 0;
 
 /* USER CODE END PV */
 
@@ -103,9 +107,15 @@ int main(void) {
 	MX_ETH_Init();
 	MX_USART3_UART_Init();
 	MX_USB_OTG_FS_PCD_Init();
+	MX_TIM3_Init();
 	/* USER CODE BEGIN 2 */
 
 	printf("Hello STM32F767ZI HAL FREERTOS\n");
+	// initialization of timer interrupt
+	if (HAL_TIM_Base_Start_IT(&htim3) != HAL_OK) {
+		/* Starting Error */
+		Error_Handler();
+	}
 
 	/* USER CODE END 2 */
 
@@ -212,7 +222,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		HAL_IncTick();
 	}
 	/* USER CODE BEGIN Callback 1 */
+	if (htim->Instance == TIM3) {
+		count_us++;
+		if (count_us == 100/4) {
+			count_us = 0;
+			count_ms++;
+			if (count_ms == 500) {
+				count_ms = 0;
+				fl_tim3_per = TRUE;
+			}
+		}
 
+	}
 	/* USER CODE END Callback 1 */
 }
 

@@ -61,6 +61,7 @@ xTaskHandle taskISRAttnHandle;
 
 // Semaphore handle variable
 SemaphoreHandle_t semaphButton1;
+SemaphoreHandle_t semaphTimer3;
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
@@ -111,6 +112,7 @@ void MX_FREERTOS_Init(void) {
 	/* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
 	semaphButton1 = xSemaphoreCreateBinary(); // creation of binary semaphore to button 1
+	semaphTimer3 = xSemaphoreCreateBinary(); // creation of binary semaphore to timer 3
 	/* USER CODE END RTOS_SEMAPHORES */
 
 	/* USER CODE BEGIN RTOS_TIMERS */
@@ -150,9 +152,12 @@ void StartDefaultTask(void const *argument) {
 	printf("Software DEMO_FC, DUNE-Daphne STM32Cube with FreeRTOS\n");
 	/* Infinite loop */
 	for (;;) {
-		HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-		// osDelay(1000);
-		vTaskDelay(500 / portTICK_PERIOD_MS);
+
+		if (xSemaphoreTake(semaphTimer3, portMAX_DELAY) == pdTRUE) {
+			HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+			// osDelay(1000);
+		}
+		// vTaskDelay(500 / portTICK_PERIOD_MS);
 	}
 	/* USER CODE END StartDefaultTask */
 }
@@ -229,8 +234,14 @@ void taskISRAttn(void *arg) {
 		if (fl_ext_it_btn) {
 			fl_ext_it_btn = FALSE; // interruption attended
 			xSemaphoreGive(semaphButton1);
-			printf("Semaphore delivered\n");
-			vTaskDelay(100 / portTICK_PERIOD_MS);
+			printf("Semaphore Button delivered\n");
+			vTaskDelay(10 / portTICK_PERIOD_MS);
+		}
+		if (fl_tim3_per) {
+			fl_tim3_per = FALSE;
+			xSemaphoreGive(semaphTimer3);
+			printf("Semaphore Timer delivered\n");
+			vTaskDelay(10 / portTICK_PERIOD_MS);
 		}
 		if (fl_usart3_rx) {
 			fl_usart3_rx = FALSE; // interrupt attended

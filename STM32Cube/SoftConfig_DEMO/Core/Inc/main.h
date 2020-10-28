@@ -174,7 +174,7 @@ extern volatile STR_FLAGS _Events;
 #define fl_ext_it_btn             _Events.Bits.flag00 //ok  // Flag to handle external interrupt in user button
 #define fl_usart3_rx              _Events.Bits.flag01 //ok  // Flag to handle usart3 rx interrupt
 #define fl_usart3_tx              _Events.Bits.flag02 //ok  // Flag to handle usart3 tx interrupt
-//#define fl_03                   _Events.Bits.flag03 //ok
+#define fl_tim3_per               _Events.Bits.flag03 //ok  // Flag to handle timer3 period interrupt
 //#define fl_04                   _Events.Bits.flag04 //ok
 //#define fl_05                   _Events.Bits.flag05 //ok
 //#define fl_06                   _Events.Bits.flag06 //ok
