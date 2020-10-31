@@ -26,6 +26,8 @@
 #include "task.h"
 #include "main.h"
 #include "cmsis_os.h"
+#include "string.h"
+#include "stdio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -44,6 +46,9 @@ uint8_t datoPruebaTx[7] = "Fabian\n";
 uint8_t *pDataTx;
 uint8_t datoPruebaRx[7];
 uint8_t *pDataRx;
+
+uint16_t adcValue = 0;
+uint8_t ValAdcPrint[7];
 
 /* USER CODE END PD */
 
@@ -227,6 +232,8 @@ void taskISRAttn(void *arg) {
 	uint8_t dataRec[8];
 	uint8_t *pDaRec;
 
+	fl_adc1_print = TRUE;
+
 	USART3_Interrupt_Init();
 
 	/* Infinite loop */
@@ -242,6 +249,29 @@ void taskISRAttn(void *arg) {
 			xSemaphoreGive(semaphTimer3);
 			printf("Semaphore Timer delivered\n");
 			vTaskDelay(10 / portTICK_PERIOD_MS);
+		}
+		if (fl_adc1_smp) {
+			fl_adc1_smp = FALSE;
+			HAL_ADC_Start_IT(&hadc1);
+		}
+		if (fl_adc1_ch3) {
+			(void) Adc1Ch3_GetValue(&adcValue); // obtain ADC data form buffer
+			fl_adc1_ch3 = FALSE;
+			if (fl_adc1_print) {
+				itoa(adcValue, ValAdcPrint, 10);
+				(void) strcat(ValAdcPrint, "\n");
+
+				pDaRec = ValAdcPrint;
+
+				while ((*pDaRec != 0) && (Fifo_Tx3_Put(*pDaRec))) {
+					*pDaRec = 0;
+					pDaRec++;
+				}
+				pDaRec = dataRec;
+				if (Fifo_Tx3_Get(pDaRec) == 1) {
+					USART3_UART_SendChar(pDaRec);
+				}
+			}
 		}
 		if (fl_usart3_rx) {
 			fl_usart3_rx = FALSE; // interrupt attended

@@ -39,6 +39,8 @@ extern "C" {
 #include "fifo_rx3.h"
 #include "fifo_tx3.h"
 
+#include "adc.h"
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -175,9 +177,9 @@ extern volatile STR_FLAGS _Events;
 #define fl_usart3_rx              _Events.Bits.flag01 //ok  // Flag to handle usart3 rx interrupt
 #define fl_usart3_tx              _Events.Bits.flag02 //ok  // Flag to handle usart3 tx interrupt
 #define fl_tim3_per               _Events.Bits.flag03 //ok  // Flag to handle timer3 period interrupt
-//#define fl_04                   _Events.Bits.flag04 //ok
-//#define fl_05                   _Events.Bits.flag05 //ok
-//#define fl_06                   _Events.Bits.flag06 //ok
+#define fl_adc1_ch3               _Events.Bits.flag04 //ok  // Flag to handle adc1ch3 acquisition interrupt
+#define fl_adc1_smp               _Events.Bits.flag05 //ok  // Flag to initiate the sample in ADC1
+#define fl_adc1_print             _Events.Bits.flag06 //ok  // Falg to handle adc1 usart3 print
 //#define fl_07                   _Events.Bits.flag07 //ok
 //#define fl_08                   _Events.Bits.flag08 //ok
 //#define fl_09                   _Events.Bits.flag09 //ok

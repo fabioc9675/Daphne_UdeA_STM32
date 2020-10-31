@@ -24,6 +24,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "adc.h"
+#include "dac.h"
 #include "eth.h"
 #include "tim.h"
 #include "usart.h"
@@ -56,6 +58,8 @@ volatile STR_FLAGS _Events; // flags to handle different events
 // counter for time interruption
 uint16_t count_us = 0;
 uint16_t count_ms = 0;
+
+uint16_t value_dac = 0;
 
 /* USER CODE END PV */
 
@@ -108,6 +112,8 @@ int main(void) {
 	MX_USART3_UART_Init();
 	MX_USB_OTG_FS_PCD_Init();
 	MX_TIM3_Init();
+	MX_ADC1_Init();
+	MX_DAC_Init();
 	/* USER CODE BEGIN 2 */
 
 	printf("Hello STM32F767ZI HAL FREERTOS\n");
@@ -224,9 +230,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	/* USER CODE BEGIN Callback 1 */
 	if (htim->Instance == TIM3) {
 		count_us++;
-		if (count_us == 100/4) {
+		if (count_us == 100 / 4) {
 			count_us = 0;
 			count_ms++;
+
+			if (count_ms % 100 == 0) { // sample in ADC every 50 ms
+				fl_adc1_smp = TRUE;
+
+				HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R,
+						value_dac);
+				value_dac = value_dac + 50;
+				if (value_dac > 4095) {
+					value_dac = 0;
+				}
+			}
 			if (count_ms == 500) {
 				count_ms = 0;
 				fl_tim3_per = TRUE;
