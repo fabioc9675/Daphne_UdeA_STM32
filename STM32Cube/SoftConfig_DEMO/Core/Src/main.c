@@ -27,6 +27,7 @@
 #include "adc.h"
 #include "dac.h"
 #include "eth.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb_otg.h"
@@ -114,6 +115,7 @@ int main(void) {
 	MX_TIM3_Init();
 	MX_ADC1_Init();
 	MX_DAC_Init();
+	MX_SPI1_Init();
 	/* USER CODE BEGIN 2 */
 
 	printf("Hello STM32F767ZI HAL FREERTOS\n");

@@ -21,6 +21,9 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
+// extern variables
+extern volatile STR_FLAGS _Events;
+
 uint16_t dataReady[10];  // variable to save the ADC acquisition value
 
 /* USER CODE END 0 */

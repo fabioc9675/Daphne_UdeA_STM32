@@ -40,6 +40,7 @@ extern "C" {
 #include "fifo_tx3.h"
 
 #include "adc.h"
+#include "spi.h"
 
 /* USER CODE END Includes */
 
@@ -127,6 +128,8 @@ void Error_Handler(void);
 #define RMII_RXD1_GPIO_Port GPIOC
 #define LD1_Pin GPIO_PIN_0
 #define LD1_GPIO_Port GPIOB
+#define CS1_Pin GPIO_PIN_1
+#define CS1_GPIO_Port GPIOB
 #define RMII_TXD1_Pin GPIO_PIN_13
 #define RMII_TXD1_GPIO_Port GPIOB
 #define LD3_Pin GPIO_PIN_14
@@ -179,8 +182,8 @@ extern volatile STR_FLAGS _Events;
 #define fl_tim3_per               _Events.Bits.flag03 //ok  // Flag to handle timer3 period interrupt
 #define fl_adc1_ch3               _Events.Bits.flag04 //ok  // Flag to handle adc1ch3 acquisition interrupt
 #define fl_adc1_smp               _Events.Bits.flag05 //ok  // Flag to initiate the sample in ADC1
-#define fl_adc1_print             _Events.Bits.flag06 //ok  // Falg to handle adc1 usart3 print
-//#define fl_07                   _Events.Bits.flag07 //ok
+#define fl_adc1_print             _Events.Bits.flag06 //ok  // Flag to handle adc1 usart3 print
+#define fl_spi1_isr               _Events.Bits.flag07 //ok  // Flag to handle spi1 rxtx interrupt
 //#define fl_08                   _Events.Bits.flag08 //ok
 //#define fl_09                   _Events.Bits.flag09 //ok
 //#define fl_10                   _Events.Bits.flag10 //ok

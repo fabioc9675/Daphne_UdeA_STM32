@@ -26,11 +26,11 @@
 #include "task.h"
 #include "main.h"
 #include "cmsis_os.h"
-#include "string.h"
-#include "stdio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "string.h"
+#include "stdio.h"
 
 /* USER CODE END Includes */
 
@@ -62,11 +62,13 @@ uint8_t ValAdcPrint[7];
 // Task handle variable
 xTaskHandle taskLed2Handle;   // variable to handle the task Led 2
 xTaskHandle taskLed3Handle;
+xTaskHandle taskSpi1Handle;
 xTaskHandle taskISRAttnHandle;
 
 // Semaphore handle variable
 SemaphoreHandle_t semaphButton1;
 SemaphoreHandle_t semaphTimer3;
+SemaphoreHandle_t semaphSpi1;
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
@@ -75,6 +77,7 @@ osThreadId defaultTaskHandle;
 /* USER CODE BEGIN FunctionPrototypes */
 void taskLed2(void *arg);  // prototype of task Led 2.
 void taskLed3(void *arg);
+void taskSpi1(void *arg);
 void taskISRAttn(void *arg);
 
 /* USER CODE END FunctionPrototypes */
@@ -118,6 +121,7 @@ void MX_FREERTOS_Init(void) {
 	/* add semaphores, ... */
 	semaphButton1 = xSemaphoreCreateBinary(); // creation of binary semaphore to button 1
 	semaphTimer3 = xSemaphoreCreateBinary(); // creation of binary semaphore to timer 3
+	semaphSpi1 = xSemaphoreCreateBinary(); // creation of binary semaphore to spi 1
 	/* USER CODE END RTOS_SEMAPHORES */
 
 	/* USER CODE BEGIN RTOS_TIMERS */
@@ -139,6 +143,7 @@ void MX_FREERTOS_Init(void) {
 	/* add threads, ... */
 	xTaskCreate(taskLed2, "Task_LED2", 512, NULL, 1, &taskLed2Handle); // task to blink LED 2
 	xTaskCreate(taskLed3, "Task_LED3", 512, NULL, 1, &taskLed3Handle); // task to blink LED 2
+	xTaskCreate(taskSpi1, "Task_SPI1", 512, NULL, 1, &taskSpi1Handle); // task to SPI handle
 	xTaskCreate(taskISRAttn, "Task_ISR_Attn", 512, NULL, 1, &taskISRAttnHandle); // task to handle interruption attention
 	/* USER CODE END RTOS_THREADS */
 
@@ -227,6 +232,46 @@ void taskLed3(void *arg) {
  * @param  argument: Not used
  * @retval None
  */
+void taskSpi1(void *args) {
+
+	uint8_t dataSend[12] = "FABIANABCDEF";
+	uint8_t dataRecv[6];
+	uint8_t count = 0;
+	uint8_t size = 6;
+
+	uint8_t *pdata;
+
+	/* Infinite loop */
+	while (TRUE) {
+
+		count++;
+		if (count % 2 == 0) {
+			pdata = dataSend + size;
+		} else {
+			pdata = dataSend;
+		}
+
+		HAL_GPIO_WritePin(CS1_GPIO_Port, CS1_Pin, LOW);
+		HAL_SPI_TransmitReceive_IT(&hspi1, pdata, dataRecv, size);
+
+		if (xSemaphoreTake(semaphSpi1, portMAX_DELAY) == pdTRUE) {
+			// semaphore by SPI interrupt received
+			HAL_GPIO_WritePin(CS1_GPIO_Port, CS1_Pin, HIGH);
+
+			printf("Data received = ");
+			printf(dataRecv);
+			printf("\n");
+		}
+		vTaskDelay(500);
+	}
+	vTaskDelete(taskSpi1Handle);
+}
+
+/**
+ * @brief  Function implementing the interruption handle.-
+ * @param  argument: Not used
+ * @retval None
+ */
 void taskISRAttn(void *arg) {
 
 	uint8_t dataRec[8];
@@ -246,13 +291,19 @@ void taskISRAttn(void *arg) {
 		}
 		if (fl_tim3_per) {
 			fl_tim3_per = FALSE;
-			xSemaphoreGive(semaphTimer3);
 			printf("Semaphore Timer delivered\n");
+			xSemaphoreGive(semaphTimer3);
 			vTaskDelay(10 / portTICK_PERIOD_MS);
 		}
 		if (fl_adc1_smp) {
 			fl_adc1_smp = FALSE;
 			HAL_ADC_Start_IT(&hadc1);
+		}
+		if (fl_spi1_isr) {
+			fl_spi1_isr = FALSE;
+			printf("Semaphore SPI delivered\n");
+			xSemaphoreGive(semaphSpi1);
+			vTaskDelay(10 / portTICK_PERIOD_MS);
 		}
 		if (fl_adc1_ch3) {
 			(void) Adc1Ch3_GetValue(&adcValue); // obtain ADC data form buffer
