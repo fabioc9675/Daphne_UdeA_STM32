@@ -12,6 +12,7 @@ this update release the peripheral configuration of STM32 modules using STM32Cub
 - ADC Polling and Interrupt
 - DAC Configuration
 - SPI Interrupt configuration
+- SPI Emulator with interruption
 - I2C Interrupt configuration
 ..
 
