@@ -1,22 +1,22 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.h
+ * @brief          : Header for main.c file.
+ *                   This file contains the common defines of the application.
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -120,7 +120,6 @@ void Error_Handler(void);
 #define TIMx                             TIM1
 #define TIMx_CLK_ENABLE()                __HAL_RCC_TIM1_CLK_ENABLE()
 
-
 /* Definition for TIMx Pins */
 #define TIMx_CHANNEL_GPIO_PORT()       __HAL_RCC_GPIOE_CLK_ENABLE()
 #define GPIO_PORT                      GPIOE
@@ -135,7 +134,6 @@ void Error_Handler(void);
 #define SPI_EMUL_RX_PIN                 GPIO_PIN_11
 #define SPI_EMUL_RX_PORT                GPIOC
 
-
 /*  Enable the clock for port SPI Emulation */
 #define SPI_EMUL_Clk_GPIO_CLK_ENABLE()        __GPIOE_CLK_ENABLE();
 #define SPI_EMUL_TX_GPIO_CLK_ENABLE()         __GPIOC_CLK_ENABLE();
@@ -146,7 +144,6 @@ void Error_Handler(void);
 
 /* Size of Receive buffer */
 #define BUFFERSIZE                     TXBUFFERSIZE
-
 
 /* Exported macro ------------------------------------------------------------*/
 #define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
